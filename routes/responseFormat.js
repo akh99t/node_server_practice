@@ -2,7 +2,7 @@
 const responseFormat = {
   data: null,
   message: '',
-  code: 0,
+  code: 500,
 }
 
 

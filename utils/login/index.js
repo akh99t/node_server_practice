@@ -1,7 +1,3 @@
-const mongoose = require('mongoose')
-const ObjectId = mongoose.Types.ObjectId
-// 路由登录操作
-
 // 连接数据库
 const mongodbFun = require('../mongodb/index')
 // 数据库-用户
@@ -59,32 +55,37 @@ const authenticateCredentials = (req = {}, res = {}) => {
               })
 
             } else {
-              // 数据库无匹配userName - 注册
-              let encryptData = encryptFun(password);
-              // hash - 通过哈希加密的密码
-              encryptData.then(hash => {
-                // 注册 上传数据库
-                let parameter = {
-                  userName,
-                  password: hash
-                }
-                userModel.create(parameter)
-                  .then(result => {
-                    // 上传数据库成功
-                    setSession(req, userName)
-                    resolve({
-                      code: 200,
-                      message: '注册成功',
-                    })
-                  })
-                  .catch(error => {
-                    // 上传数据库失败
-                    reject({
-                      code: 500,
-                      message: '注册失败',
-                    })
-                  });
+              resolve({
+                message: '密码校验失败',
+                code: 400,
               })
+              return;
+              // // 数据库无匹配userName - 注册
+              // let encryptData = encryptFun(password);
+              // // hash - 通过哈希加密的密码
+              // encryptData.then(hash => {
+              //   // 注册 上传数据库
+              //   let parameter = {
+              //     userName,
+              //     password: hash
+              //   }
+              //   userModel.create(parameter)
+              //     .then(result => {
+              //       // 上传数据库成功
+              //       setSession(req, userName)
+              //       resolve({
+              //         code: 200,
+              //         message: '注册成功',
+              //       })
+              //     })
+              //     .catch(error => {
+              //       // 上传数据库失败
+              //       reject({
+              //         code: 500,
+              //         message: '注册失败',
+              //       })
+              //     });
+              // })
             }
           })
           .catch(error => {

@@ -7,7 +7,6 @@ const aiQADataModel = require('../mongodb/aiQADataModel')
 const aiQADataFindFun = (userName) => {
   const todayStart = new Date();
   const todayEnd = new Date();
-
   todayStart.setHours(todayStart.getHours() + 8); // 调整时区为东八区（北京时间）
   todayEnd.setHours(todayStart.getHours() + 8); // 调整时区为东八区（北京时间）
   todayStart.setUTCHours(0, 0, 0, 0); // 设置为今天的UTC零点

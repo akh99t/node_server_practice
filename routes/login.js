@@ -9,12 +9,6 @@ const {
   findUserCredentialsById
 } = require('../utils/login/index')
 
-router.get('/', function (req, res, next) {
-  res.json({
-    message: 'Hello, World!'
-  });
-});
-
 // 登录接口 - 验证账号密码 - login
 router.post('/', function (req, res, next) {
   let cloneResponseFormat = {
@@ -101,23 +95,5 @@ router.post('/validateUserCredentials', (req, res) => {
   })
   
 })
-
-
-router.get('/login', function (req, res, next) {
-  // res.render(`'index', { title: 'Express' }`);
-  req.session.text = 'akh'
-  console.log('--- get /login A ---', req.session, req.headers.cookie);
-  res.json({
-    message: 'Hello, World!'
-  });
-});
-router.get('/login2', function (req, res, next) {
-  // res.render(`'index', { title: 'Express' }`);
-  console.log('--- get /login C ---', req.session);
-  res.json({
-    message: 'Hello, World!'
-  });
-});
-
 
 module.exports = router;

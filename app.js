@@ -10,11 +10,13 @@ const session = require('express-session')
 const MongoStore = require('connect-mongo')
 // https请求
 // const https = require('https')
+// 路由日志中间件
+const logRoute = require('./middlewares/logger')
 
 var app = express();
 
 // 支持所有跨域
-app.use(cors())
+app.use(cors());
 // 设置 seesion 中间件
 app.use(session({
   name: 'sid', // cookie的name
@@ -30,19 +32,18 @@ app.use(session({
     httpOnly: true, // 开启后前端js无法操作
     maxAge: 1000 * 60 * 60 * 6, // 控制sessionID的过期时间
   }
-}))
+}));
 
 // 设置允许跨域访问的源为 http://127.0.0.1
 app.use((req, res, next) => {
   // res.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1');
+  // 允许所有域名访问
   res.setHeader('Access-Control-Allow-Origin', '*');
   next();
 });
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 // app.set('view engine', 'jade');
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({
@@ -50,14 +51,21 @@ app.use(express.urlencoded({
 }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+// 设置日志中间件
+app.use(logRoute);
 
 // 配置路由
 const indexRouter = require('./routes/index');
 const loginRouter = require('./routes/login');
 const openAiRouter = require('./routes/openAi');
+const usersRouter = require('./routes/users');
 app.use('/', indexRouter);
 app.use('/login', loginRouter);
 app.use('/openAI', openAiRouter);
+app.use('/users', usersRouter);
+// 代理百度服务器
+// const { createProxyMiddleware } = require('http-proxy-middleware');
+// app.use('/baidu', createProxyMiddleware({ target: 'https://www.baidu.com/', changeOrigin: true }));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
