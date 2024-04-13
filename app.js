@@ -1,8 +1,10 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const { MONGODB_URL_LIST } = require('./config');
+
 // 跨域
 const cors = require('cors');
 // 设置seesion, 并且存储在数据库
@@ -13,7 +15,7 @@ const MongoStore = require('connect-mongo')
 // 路由日志中间件
 const logRoute = require('./middlewares/logger')
 
-var app = express();
+const app = express();
 
 // 支持所有跨域
 app.use(cors());
@@ -24,7 +26,7 @@ app.use(session({
   saveUninitialized: false, // 是否每次请求都设置一个cookie用于存储session的id
   resave: true, // 是否每次请求都重新保存session
   store: MongoStore.create({
-    mongoUrl: 'mongodb://localhost:27017/usersList'
+    mongoUrl: MONGODB_URL_LIST[0]
   }),
   cookie: {
     // secure: false, // 允许在非安全连接上设置 Cookie 有安全风险
@@ -34,11 +36,13 @@ app.use(session({
   }
 }));
 
-// 设置允许跨域访问的源为 http://127.0.0.1
+// 设置允许跨域访问的源
 app.use((req, res, next) => {
-  // res.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1');
-  // 允许所有域名访问
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const allowedOrigins = ['http://127.0.0.1', 'http://www.akh999.xyz']; // 添加允许访问的域名或IP地址
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   next();
 });
 // view engine setup
@@ -59,13 +63,19 @@ const indexRouter = require('./routes/index');
 const loginRouter = require('./routes/login');
 const openAiRouter = require('./routes/openAi');
 const usersRouter = require('./routes/users');
+const crawlerRouter = require('./routes/crawler');
 app.use('/', indexRouter);
 app.use('/login', loginRouter);
 app.use('/openAI', openAiRouter);
 app.use('/users', usersRouter);
+app.use('/crawler', crawlerRouter);
 // 代理百度服务器
 // const { createProxyMiddleware } = require('http-proxy-middleware');
 // app.use('/baidu', createProxyMiddleware({ target: 'https://www.baidu.com/', changeOrigin: true }));
+
+// 定时任务
+const spiderTimer = require('./utils/spiderTimer')
+spiderTimer()
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -1,3 +1,4 @@
+const { EXCEPT_OPERATION_USER_LIST } = require('../../config')
 // 连接数据库
 const mongodbFun = require('../mongodb/index')
 // 数据库-用户
@@ -12,11 +13,12 @@ const {
 } = require('../mongodb/bcryptFun');
 
 // 设置session
-function setSession(req, userName) {
+function setSession(req, userName, grade = 1) {
   if (req && req.session) {
     req.session.text = 'akh999'
     req.session.user = userName
     req.session.key = `userName_${userName}`
+    req.session.grade = grade
   }
 }
 
@@ -30,7 +32,7 @@ const authenticateCredentials = (req = {}, res = {}) => {
     } = req.body || {}
 
     if (userName && password) {
-      let mongodbData = mongodbFun
+      let mongodbData = mongodbFun()
       // 连接数据库成功后的回调
       mongodbData.then(mongodbFunResolve => {
         // 判断数据库中是否有重复的用户名
@@ -38,13 +40,14 @@ const authenticateCredentials = (req = {}, res = {}) => {
             userName
           })
           .then(user => {
+            let grade = userName === 'admin' ? 0 : 1
             if (user) {
               // 如果有相同的userName, 则校验密码
               let checkPasswordData = checkPasswordFun(password, user.password);
               checkPasswordData.then(value => {
                 // 如果校验密码成功 生成cookie校验
                 if (value) {
-                  setSession(req, userName)
+                  setSession(req, userName, grade)
                 }
                 resolve({
                   message: value ? '登录成功' : '密码校验失败',
@@ -55,37 +58,47 @@ const authenticateCredentials = (req = {}, res = {}) => {
               })
 
             } else {
-              resolve({
-                message: '密码校验失败',
-                code: 400,
+              userModel.countDocuments().then(value => {
+                // 当前允许存在账号上限: 10
+                if (value >= 10) {
+                  resolve({
+                    message: '密码校验失败',
+                    code: 400,
+                  })
+                } else {
+                  // 数据库无匹配userName - 注册
+                  let encryptData = encryptFun(password);
+                  // hash - 通过哈希加密的密码
+                  encryptData.then(hash => {
+                    // 注册 上传数据库
+                    let parameter = {
+                      userName,
+                      password: hash,
+                      grade,
+                      exceptOperation: EXCEPT_OPERATION_USER_LIST.includes(userName),
+                      date: new Date(),
+                    }
+                    userModel.create(parameter)
+                      .then(result => {
+                        // 上传数据库成功
+                        setSession(req, userName, grade)
+                        resolve({
+                          code: 200,
+                          message: '注册成功',
+                        })
+                      })
+                      .catch(error => {
+                        // 上传数据库失败
+                        reject({
+                          code: 500,
+                          message: '注册失败',
+                        })
+                      });
+                  })
+                }
+              }).catch(err => {
+                rejcte(false)
               })
-              return;
-              // // 数据库无匹配userName - 注册
-              // let encryptData = encryptFun(password);
-              // // hash - 通过哈希加密的密码
-              // encryptData.then(hash => {
-              //   // 注册 上传数据库
-              //   let parameter = {
-              //     userName,
-              //     password: hash
-              //   }
-              //   userModel.create(parameter)
-              //     .then(result => {
-              //       // 上传数据库成功
-              //       setSession(req, userName)
-              //       resolve({
-              //         code: 200,
-              //         message: '注册成功',
-              //       })
-              //     })
-              //     .catch(error => {
-              //       // 上传数据库失败
-              //       reject({
-              //         code: 500,
-              //         message: '注册失败',
-              //       })
-              //     });
-              // })
             }
           })
           .catch(error => {
@@ -128,13 +141,18 @@ const findUserCredentialsById = (req = {}) => {
     } = req.body || {};
 
     try {
-      sessionModel.findOne({
-        _id,
-      }).then(
-        value => {
-          value ? resolve(value) : rejcte(value)
-        }
-      ).catch(error => {
+      let mongodbData = mongodbFun()
+      mongodbData.then(() => {
+        sessionModel.findOne({
+          _id,
+        }).then(
+          value => {
+            value ? resolve(value) : rejcte(value)
+          }
+        ).catch(error => {
+          rejcte(error)
+        })
+      }).catch(error => {
         rejcte(error)
       })
     } catch (error) {

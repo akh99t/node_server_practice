@@ -25,7 +25,7 @@ const aiQADataFindFun = (userName) => {
 let fetchQALimitAndAvailabilityFun = (userName) => {
   return new Promise((reslove, reject) => {
     // 连接数据库
-    let mongodbData = mongodbFun
+    let mongodbData = mongodbFun()
     try {
       mongodbData.then(() => {
         let aiQAData = aiQADataFindFun(userName)
@@ -47,7 +47,7 @@ let saveAIQARecordFun = (userName, dataJSON, userID) => {
   return new Promise((resolve, reject) => {
     try {
       // 连接数据库
-      let mongodbData = mongodbFun
+      let mongodbData = mongodbFun()
       mongodbData.then(() => {
         // 存储问答记录
         let newRecord = new aiQADataModel({
@@ -84,7 +84,7 @@ let getAIDialogueRecordsFun = (userName) => {
   return new Promise((resolve, reject) => {
     try {
       // 连接数据库
-      let mongodbData = mongodbFun
+      let mongodbData = mongodbFun()
       mongodbData.then(() => {
         let aiQAData = aiQADataFindFun(userName)
         aiQAData.then(value => {

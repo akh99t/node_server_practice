@@ -9,7 +9,7 @@ const getOperationLog = (req, res, responseFormat) => {
     pageSize
   } = req.body
 
-  mongodbFun.then(() => {
+  mongodbFun().then(() => {
     return Promise.all([
       logModel.countDocuments({}), // 获取数据总数
       logModel.find({}) // 查询数据

@@ -13,6 +13,19 @@ let UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  date: {
+    type: Date,
+    required: true,
+  },
+  grade: {
+    type: Number,
+    required: true,
+    default: 1
+  },
+  exceptOperation: {
+    type: Boolean,
+    required: false
+  }
 })
 
 module.exports = mongoose.model('users', UserSchema)
