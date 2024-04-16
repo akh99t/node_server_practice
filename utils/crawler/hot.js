@@ -15,7 +15,7 @@ const hotFun = (name, data) => {
           // 更新的数据
           name,
           data,
-          Date: new Date(),
+          updateTime: new Date(),
         }, {
           upsert: true,
           new: true
@@ -38,6 +38,7 @@ async function crawlZhihuHot() {
       let zhihuHot = data?.data
       if (zhihuHot && zhihuHot.length) {
         hotFun('zhihuHot', zhihuHot)
+        console.log('知乎更新01: ', zhihuHot?.[0]?.target?.title);
         resolve({
           data: zhihuHot
         })
@@ -93,10 +94,11 @@ let crawlerHotPosts = (req, res, responseFormat) => {
     mongodbFun().then(() => {
       try {
         crawlerModel.findOne({ name }).then(
-          ({data}) => {
+          ({data, updateTime}) => {
             res.json({
               code: 200,
               data,
+              updateTime,
               message: `获取 ${name} 成功`
             })
           }
@@ -122,7 +124,8 @@ let crawlerHotPosts = (req, res, responseFormat) => {
 module.exports = {
   crawlerHotPosts,
   crawlHotFun: () => {
-    crawlZhihuHot();
-    crawlBLBLHot();
+    console.log('--- 执行爬虫 更新数据库数据 ---');
+    crawlZhihuHot().then(() => {}, () => {});
+    crawlBLBLHot().then(() => {}, () => {});
   }
 }

@@ -8,6 +8,7 @@ const {
   saveAIQARecordFun,
   getAIDialogueRecordsFun
 } = require('../utils/openAI/searchAndSave')
+const { AI_CHAT_INVITATION_CODE } = require('../config')
 // const openAI = require('../utils/openAI/index')
 
 // 限制每个账号AI聊天次数
@@ -33,7 +34,7 @@ router.post('/qualifyValidation', function (req, res, next) {
     ...responseFormat
   }
 
-  if (invitationCode === '999999') {
+  if (invitationCode === AI_CHAT_INVITATION_CODE) {
     res.status(200).json({
       ...cloneResponseFormat,
       message: '邀请码正确',

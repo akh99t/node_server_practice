@@ -4,6 +4,8 @@ const ExceptOperationUserList = ['admin', '访客登录']
 const baseNameList = ['dataPoolA']
 // B站个人Cookie
 const BLBLCookie = process?.env?.BLBL_COOKIE || null
+// AI对话_邀请码_MD5加密
+const AI_CHAT_INVITATION_CODE = '52c69e3a57331081823331c4e69d3f2e'
 
 module.exports = {
   // PORT: process.env.PORT || 3000,
@@ -12,6 +14,7 @@ module.exports = {
   MONGODB_URL_LIST: baseNameList.map(item => {
     return `mongodb://localhost:27017/${item}`
   }),
+  AI_CHAT_INVITATION_CODE,
   EXCEPT_OPERATION_USER_LIST: ExceptOperationUserList,
   BLBL_COOKIE: BLBLCookie
 };

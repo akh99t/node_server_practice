@@ -11,7 +11,7 @@ let hotSchama  = new mongoose.Schema({
     type: Object,
     default: []
   },
-  Date: {
+  updateTime: {
     type: Date,
     required: true,
     default: new Date() 

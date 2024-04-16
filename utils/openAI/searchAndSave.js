@@ -1,3 +1,4 @@
+const { fetchBeijingTime } = require('../../public/javascripts/timeUtils')
 // mongodb数据库连接
 const mongodbFun = require('../mongodb/index')
 // 存储
@@ -5,10 +6,8 @@ const aiQADataModel = require('../mongodb/aiQADataModel')
 
 // 获取今日问答记录
 const aiQADataFindFun = (userName) => {
-  const todayStart = new Date();
-  const todayEnd = new Date();
-  todayStart.setHours(todayStart.getHours() + 8); // 调整时区为东八区（北京时间）
-  todayEnd.setHours(todayStart.getHours() + 8); // 调整时区为东八区（北京时间）
+  const todayStart = fetchBeijingTime();
+  const todayEnd = fetchBeijingTime();
   todayStart.setUTCHours(0, 0, 0, 0); // 设置为今天的UTC零点
   todayEnd.setUTCHours(23, 59, 59, 999); // 设置为今天的UTC 23:59:59.999
 
