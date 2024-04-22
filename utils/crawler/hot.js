@@ -87,6 +87,37 @@ async function crawlBLBLHot() {
   })
 }
 
+// 获取LOL当前热门英雄数据
+const LOLList = ['top', 'jungle', 'mid', 'adc', 'support']
+async function crawlLOLHot() {
+  let promiseAllList = []
+  LOLList.forEach(key => {
+    let url = `https://www.op.gg/_next/data/CInRrXxfjDAs7XP-I1X4W/en_US/champions.json?position=${key}`;
+    promiseAllList.push(
+      new Promise(async (resolve, reject) => {
+        try {
+          const {
+            data
+          } = await axios.get(url) || {};
+          let LOLHot = data?.pageProps?.championRankingList
+          if (LOLHot && LOLHot.length) {
+            resolve(LOLHot)
+          } else {
+            reject({
+              data: []
+            })
+          }
+        } catch (error) {
+          reject({
+            error,
+          })
+        }
+      })
+    )
+  });
+  return Promise.all(promiseAllList)
+}
+
 // 数据库查询热点数据并返回前端
 let crawlerHotPosts = (req, res, responseFormat) => {
   let { name } = req.body || {}
@@ -127,5 +158,15 @@ module.exports = {
     console.log('--- 执行爬虫 更新数据库数据 ---');
     crawlZhihuHot().then(() => {}, () => {});
     crawlBLBLHot().then(() => {}, () => {});
+    crawlLOLHot().then(value => {
+      if (value && value.length === 5) {
+        let data = {}
+        LOLList.forEach((key, index) => {
+          data[key] = value[index]
+        });
+        hotFun('LOLHot', data)
+      }
+    }, () => {});
+    
   }
 }

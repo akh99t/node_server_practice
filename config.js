@@ -12,7 +12,7 @@ module.exports = {
   // DB_URL: process.env.DB_URL || 'mongodb://localhost:27017/mydb',
   // JWT_SECRET: process.env.JWT_SECRET || 'mysecretkey'
   MONGODB_URL_LIST: baseNameList.map(item => {
-    return `mongodb://localhost:27017/${item}`
+    return `mongodb://127.0.0.1:27017/${item}`
   }),
   AI_CHAT_INVITATION_CODE,
   EXCEPT_OPERATION_USER_LIST: ExceptOperationUserList,

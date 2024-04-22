@@ -8,8 +8,8 @@ const spiderTimerFun = () => {
 }
 
 // 定义定时任务
-const job = schedule.scheduleJob('0 * * * *', function() {
-    console.log('--- 每个小时整时时执行的函数 ---');
+const job = schedule.scheduleJob('30 * * * *', function() {
+    console.log('--- 每个小时执行的函数 ---', new Date());
     spiderTimerFun()
 });
 
